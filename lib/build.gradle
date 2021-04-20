@@ -1,15 +1,20 @@
-
-
 plugins {
-    id 'java-library' 
+    id 'java-library'
 }
 
 repositories {
-    mavenCentral() 
+    mavenCentral()
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.1' 
+    testImplementation 'junit:junit:4.13.1'
+
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.68'
 }
 
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
