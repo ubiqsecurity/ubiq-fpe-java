@@ -1,0 +1,22 @@
+image:
+    name: debian:stable
+
+variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - build
+
+stages:
+    - test
+
+test:
+    stage: test
+    before_script:
+        - apt -y update
+        - apt -y install gradle
+    script:
+        - ./gradlew cleanTest test
