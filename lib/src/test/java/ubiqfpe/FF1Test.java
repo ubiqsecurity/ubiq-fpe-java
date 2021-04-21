@@ -17,10 +17,10 @@ public class FF1Test
 
         ctx = new FF1(key, twk, 0, 0, radix);
 
-        out = ctx.encrypt(PT, twk);
+        out = ctx.encrypt(PT);
         assertEquals(CT, out);
 
-        out = ctx.decrypt(CT, twk);
+        out = ctx.decrypt(CT);
         assertEquals(PT, out);
     }
 
