@@ -12,17 +12,17 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 class FFX
 {
-    private CBCBlockCipher cipher;
-    private int radix;
-    private int txtmin, txtmax;
-    private int twkmin, twkmax;
-    private byte[] twk;
+    public CBCBlockCipher cipher;
+    public int radix;
+    public long txtmin, txtmax;
+    public long twkmin, twkmax;
+    public byte[] twk;
 
     public FFX(final byte[] key, final byte[] twk,
-               final int txtmax,
-               final int twkmin, final int twkmax,
+               final long txtmax,
+               final long twkmin, final long twkmax,
                final int radix) {
-        int txtmin;
+        long txtmin;
 
         switch (key.length) {
         case 16:
@@ -62,27 +62,25 @@ class FFX
         this.twk = Arrays.copyOf(twk, twk.length);
     }
 
-    public byte[] prf(final byte[] src) {
-        byte[] dst = new byte[this.cipher.getBlockSize()];
-
-        if (src.length % dst.length != 0) {
+    public void prf(byte[] dst, final int doff,
+                    final byte[] src, final int soff) {
+        if ((src.length - soff) % this.cipher.getBlockSize() != 0) {
             throw new IllegalArgumentException("invalid source length");
         }
 
         for (int i = 0; i < src.length; i += dst.length) {
-            this.cipher.processBlock(src, i, dst, 0);
+            this.cipher.processBlock(src, soff + i, dst, doff);
         }
         this.cipher.reset();
-
-        return dst;
     }
 
-    public byte[] ciph(final byte[] src) {
-        if (src.length != this.cipher.getBlockSize()) {
+    public void ciph(byte[] dst, final int doff,
+                     final byte[] src, final int soff) {
+        if (src.length - soff != this.cipher.getBlockSize()) {
             throw new IllegalArgumentException("invalid source length");
         }
 
-        return this.prf(src);
+        this.prf(dst, doff, src, soff);
     }
 
     public static byte[] rev(final byte[] src) {
@@ -100,14 +98,13 @@ class FFX
         return sb.reverse().toString();
     }
 
-    public static byte[] xor(final byte[] s1, final byte[] s2) {
-        byte[] dst = new byte[Math.min(s1.length, s2.length)];
-
-        for (int i = 0; i < dst.length; i++) {
-            dst[i] = (byte)(s1[i] ^ s2[i]);
+    public static void xor(byte[] d, final int doff,
+                           final byte[] s1, final int s1off,
+                           final byte[] s2, final int s2off,
+                           final int len) {
+        for (int i = 0; i < len; i++) {
+            d[doff + i] = (byte)(s1[s1off + i] ^ s2[s2off + i]);
         }
-
-        return dst;
     }
 
     public static String str(final int m, final int r, final BigInteger i) {
