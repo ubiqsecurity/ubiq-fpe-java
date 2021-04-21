@@ -42,6 +42,9 @@ class FFX
             throw new RuntimeException("minimum text length out of range");
         }
 
+        if (twk == null) {
+            throw new NullPointerException("invalid tweak");
+        }
         if (twkmin > twkmax ||
             twk.length < twkmin ||
             (twkmax > 0 && twk.length > twkmax)) {
@@ -83,13 +86,29 @@ class FFX
         this.prf(dst, doff, src, soff);
     }
 
-    public static byte[] rev(final byte[] src) {
-        byte[] dst = new byte[src.length];
+    public byte[] ciph(final byte[] src) {
+        byte[] dst = new byte[this.cipher.getBlockSize()];
+        ciph(dst, 0, src, 0);
+        return dst;
+    }
 
-        for (int i = 0; i < src.length; i++) {
+    public static void rev(byte[] dst, final byte[] src) {
+        int i;
+
+        for (i = 0; i < src.length / 2; i++) {
+            final byte t = src[i];
             dst[i] = src[src.length - i - 1];
+            dst[src.length - i - 1] = t;
         }
 
+        if (src.length % 2 == 1) {
+            dst[i] = src[i];
+        }
+    }
+
+    public static byte[] rev(final byte[] src) {
+        byte[] dst = new byte[src.length];
+        rev(dst, src);
         return dst;
     }
 
