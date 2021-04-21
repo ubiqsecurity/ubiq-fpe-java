@@ -30,9 +30,11 @@ public class FF1
     }
 
     private String cipher(final String X, byte[] twk, final boolean encrypt) {
+        /* Step 1 */
         final int n = X.length();
         final int u = n / 2, v = n - u;
 
+        /* Step 3, 4 */
         final int b = ((int)Math.ceil(
                            (Math.log(ctx.radix) / Math.log(2)) * v) + 7) / 8;
         final int d = 4 * ((b + 3) / 4) + 4;
@@ -40,14 +42,16 @@ public class FF1
         final int p = 16;
         final int r = ((d + 15) / 16) * 16;
 
-        String A, B, Y;
+        String A, B;
         byte[] PQ, R;
         int q;
 
+        /* use default tweak if none is supplied */
         if (twk == null) {
             twk = ctx.twk;
         }
 
+        /* check text and tweak lengths */
         if (n < ctx.txtmin || n > ctx.txtmax) {
             throw new IllegalArgumentException("invalid input length");
         } else if (twk.length < ctx.twkmin ||
@@ -55,11 +59,17 @@ public class FF1
             throw new IllegalArgumentException("invalid tweak length");
         }
 
+        /* the number of bytes in Q */
         q = ((twk.length + b + 1 + 15) / 16) * 16;
 
+        /*
+         * P and Q need to be adjacent in memory for the
+         * purposes of encryption
+         */
         PQ = new byte[p + q];
         R  = new byte[r];
 
+        /* Step 2 */
         if (encrypt) {
             A = X.substring(0, u);
             B = X.substring(u);
@@ -68,6 +78,7 @@ public class FF1
             A = X.substring(u);
         }
 
+        /* Step 5 */
         PQ[0]  = 1;
         PQ[1]  = 2;
         PQ[2]  = 1;
@@ -85,22 +96,30 @@ public class FF1
         PQ[14] = (byte)(twk.length >>  8);
         PQ[15] = (byte)(twk.length >>  0);
 
+        /* Step 6i, the static parts */
         System.arraycopy(twk, 0, PQ, p, twk.length);
         /* remainder of Q already initialized to 0 */
 
         for (int i = 0; i < 10; i++) {
+            /* Step 6v */
             final int m = (((i + (encrypt ? 1 : 0)) % 2) == 1) ? u : v;
 
             BigInteger c, y;
             byte[] numb;
 
+            /* Step 6i, the non-static parts */
             PQ[PQ.length - b - 1] = (byte)(encrypt ? i : (9 - i));
 
+            /*
+             * convert the numeral string B to an integer and
+             * export that integer as a byte array into Q
+             */
             c = new BigInteger(B, ctx.radix);
             numb = c.toByteArray();
             if (b <= numb.length) {
                 System.arraycopy(numb, 0, PQ, PQ.length - b, b);
             } else {
+                /* pad on the left with zeros */
                 Arrays.fill(PQ, PQ.length - b,
                             PQ.length - numb.length,
                             (byte)0);
@@ -109,8 +128,14 @@ public class FF1
                                  numb.length);
             }
 
+            /* Step 6ii */
             ctx.prf(R, 0, PQ, 0);
 
+            /*
+             * Step 6iii
+             * if r is greater than 16, fill the subsequent blocks
+             * with the result of ciph(R ^ 1), ciph(R ^ 2), ...
+             */
             for (int j = 1; j < r / 16; j++) {
                 final int l = j * 16;
 
@@ -125,6 +150,11 @@ public class FF1
                 ctx.ciph(R, l, R, l);
             }
 
+            /*
+             * Step 6vi
+             * calculate A +/- y mod radix**m
+             * where y is the number formed by the first d bytes of R
+             */
             y = new BigInteger(Arrays.copyOf(R, d));
             y = y.mod(BigInteger.ONE.shiftLeft(8 * d));
 
@@ -137,17 +167,14 @@ public class FF1
 
             c = c.mod(BigInteger.valueOf(ctx.radix).pow(m));
 
+            /* Step 6viii */
             A = B;
+            /* Step 6vii, 6ix */
             B = FFX.str(m, ctx.radix, c);
         }
 
-        if (encrypt) {
-            Y = A + B;
-        } else {
-            Y = B + A;
-        }
-
-        return Y;
+        /* Step 7 */
+        return encrypt ? (A + B) : (B + A);
     }
 
     /**

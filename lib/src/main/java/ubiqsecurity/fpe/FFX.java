@@ -24,6 +24,7 @@ class FFX
                final int radix) {
         long txtmin;
 
+        /* all 3 key sizes of AES are supported */
         switch (key.length) {
         case 16:
         case 24:
@@ -33,24 +34,44 @@ class FFX
             throw new IllegalArgumentException("key size error");
         }
 
+        /*
+         * FF1 and FF3-1 support a radix up to 65536, but the
+         * implementation becomes increasingly difficult and
+         * less useful in practice after the limits below.
+         */
         if (radix < 2 || radix > 36) {
             throw new IllegalArgumentException("invalid radix");
         }
 
+        /*
+         * for both ff1 and ff3-1: radix**minlen >= 1000000
+         *
+         * therefore:
+         *   minlen = ceil(log_radix(1000000))
+         *          = ceil(log_10(1000000) / log_10(radix))
+         *          = ceil(6 / log_10(radix))
+         */
         txtmin = (int)Math.ceil(6.0 / Math.log10(radix));
         if (txtmin < 2 || txtmin > txtmax) {
             throw new RuntimeException("minimum text length out of range");
         }
 
+        /* the default tweak must be specified */
         if (twk == null) {
             throw new NullPointerException("invalid tweak");
         }
+        /* check tweak lengths */
         if (twkmin > twkmax ||
             twk.length < twkmin ||
             (twkmax > 0 && twk.length > twkmax)) {
             throw new IllegalArgumentException("invalid tweak length");
         }
 
+        /*
+         * the underlying cipher for FF1 and FF3-1 is AES in CBC mode.
+         * by not specifying the IV, the IV is set to 0's which is
+         * what is called for in these algorithms
+         */
         this.cipher = new CBCBlockCipher(new AESEngine());
         this.cipher.init(true, new KeyParameter(key));
 
@@ -65,6 +86,13 @@ class FFX
         this.twk = Arrays.copyOf(twk, twk.length);
     }
 
+    /*
+     * perform an aes-cbc encryption (with an IV of 0) of @src, storing
+     * the last block of output into @dst. The number of bytes in @src
+     * must be a multiple of 16. @dst and @src may point to the same
+     * location but may not overlap, otherwise. @dst must point to a
+     * location at least 16 bytes long
+     */
     public void prf(byte[] dst, final int doff,
                     final byte[] src, final int soff) {
         if ((src.length - soff) % this.cipher.getBlockSize() != 0) {
@@ -77,6 +105,11 @@ class FFX
         this.cipher.reset();
     }
 
+    /*
+     * perform an aes-ecb encryption of @src. @src and @dst must each be
+     * 16 bytes long, starting from the respective offsets. @src and @dst
+     * may point to the same location or otherwise overlap
+     */
     public void ciph(byte[] dst, final int doff,
                      final byte[] src, final int soff) {
         if (src.length - soff != this.cipher.getBlockSize()) {
@@ -86,12 +119,20 @@ class FFX
         this.prf(dst, doff, src, soff);
     }
 
+    /*
+     * a convenience version of the ciph function that returns its
+     * output as a separate byte array
+     */
     public byte[] ciph(final byte[] src) {
         byte[] dst = new byte[this.cipher.getBlockSize()];
         ciph(dst, 0, src, 0);
         return dst;
     }
 
+    /*
+     * reverse the bytes in a byte array. @dst and @src may point
+     * to the same location but may not otherwise overlap
+     */
     public static void rev(byte[] dst, final byte[] src) {
         int i;
 
@@ -106,17 +147,28 @@ class FFX
         }
     }
 
+    /*
+     * convenience function that returns the reversed sequence
+     * of bytes as a new byte array
+     */
     public static byte[] rev(final byte[] src) {
         byte[] dst = new byte[src.length];
         rev(dst, src);
         return dst;
     }
 
+    /*
+     * reverse the characters in a string
+     */
     public static String rev(final String str) {
         StringBuilder sb =  new StringBuilder(str);
         return sb.reverse().toString();
     }
 
+    /*
+     * Perform an exclusive-or of the corresponding bytes
+     * in two byte arrays
+     */
     public static void xor(byte[] d, final int doff,
                            final byte[] s1, final int s1off,
                            final byte[] s2, final int s2off,
@@ -126,6 +178,11 @@ class FFX
         }
     }
 
+    /*
+     * convert a big integer to a string under the radix @r with
+     * length @m. If the string is longer than @m, the function fails.
+     * if the string is shorter that @m, it is zero-padded to the left
+     */
     public static String str(final int m, final int r, final BigInteger i) {
         String s = i.toString(r);
 

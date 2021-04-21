@@ -20,6 +20,19 @@ public class FF3_1
      *                text inputs/outputs
      */
     public FF3_1(final byte[] key, final byte[] twk, final int radix) {
+        /*
+         * maxlen for ff3-1:
+         * = 2 * log_radix(2**96)
+         * = 2 * log_radix(2**48 * 2**48)
+         * = 2 * (log_radix(2**48) + log_radix(2**48))
+         * = 2 * (2 * log_radix(2**48))
+         * = 4 * log_radix(2**48)
+         * = 4 * log2(2**48) / log2(radix)
+         * = 4 * 48 / log2(radix)
+         * = 192 / log2(radix)
+         *
+         * note also that the key is reversed for FF3-1
+         */
         ctx = new FFX(FFX.rev(key), twk,
                       (long)(192.0 / (Math.log(radix) / Math.log(2))),
                       7, 7,
@@ -27,17 +40,20 @@ public class FF3_1
     }
 
     private String cipher(final String X, byte[] twk, final boolean encrypt) {
+        /* Step 1 */
         final int n = X.length();
         final int v = n / 2, u = n - v;
 
-        String A, B, Y;
+        String A, B;
         byte[][] Tw;
         byte[] P;
 
+        /* use the default tweak if none is given */
         if (twk == null) {
             twk = ctx.twk;
         }
 
+        /* check text and tweak lengths */
         if (n < ctx.txtmin || n > ctx.txtmax) {
             throw new IllegalArgumentException("illegal input length");
         } else if (twk.length < ctx.twkmin ||
@@ -45,6 +61,7 @@ public class FF3_1
             throw new IllegalArgumentException("illegal tweak length");
         }
 
+        /* Step 2 */
         if (encrypt) {
             A = X.substring(0, u);
             B = X.substring(u);
@@ -53,6 +70,7 @@ public class FF3_1
             A = X.substring(u);
         }
 
+        /* Step 3 */
         Tw = new byte[2][4];
         System.arraycopy(twk, 0, Tw[0], 0, 3);
         Tw[0][3] = (byte)(twk[3] & 0xf0);
@@ -63,25 +81,40 @@ public class FF3_1
         P = new byte[16];
 
         for (int i = 0; i < 8; i++) {
+            /* Step 4i */
             final int m = (((i + (encrypt ? 1 : 0)) % 2) == 1) ? u : v;
             BigInteger c, y;
             byte[] numb;
 
+            /* Step 4i, 4ii */
             System.arraycopy(Tw[(i + (encrypt ? 1 : 0)) % 2], 0, P, 0, 4);
+            /* W ^ i */
             P[3] ^= encrypt ? i : (7 - i);
 
+            /*
+             * reverse B and convert the numeral string to an
+             * integer. then, export that integer as an array.
+             * store the array into the latter part of P
+             */
             c = new BigInteger(FFX.rev(B), ctx.radix);
             numb = c.toByteArray();
             if (12 <= numb.length) {
                 System.arraycopy(numb, 0, P, 4, 12);
             } else {
+                /* zero pad on the left */
                 Arrays.fill(P, 4, P.length - numb.length, (byte)0);
                 System.arraycopy(
                     numb, 0, P, P.length - numb.length, numb.length);
             }
 
+            /* Step 4iv */
             P = FFX.rev(ctx.ciph(FFX.rev(P)));
 
+            /*
+             * Step 4v
+             * calculate reverse(A) +/- y mode radix**m
+             * where y is the number formed by the byte array P
+             */
             y = new BigInteger(P);
             y = y.mod(BigInteger.ONE.shiftLeft(16 * 8));
 
@@ -94,17 +127,14 @@ public class FF3_1
 
             c = c.mod(BigInteger.valueOf(ctx.radix).pow(m));
 
+            /* Step 4vii */
             A = B;
+            /* Step 4vi */
             B = FFX.rev(FFX.str(m, ctx.radix, c));
         }
 
-        if (encrypt) {
-            Y = A + B;
-        } else {
-            Y = B + A;
-        }
-
-        return Y;
+        /* Step 5 */
+        return encrypt ? (A + B) : (B + A);
     }
 
     /**
