@@ -14,7 +14,7 @@ public class FF1
         ctx = new FFX(key, twk, (long)1 << 32, twkmin, twkmax, radix);
     }
 
-    private String cipher(String X, byte[] twk, final boolean encrypt) {
+    private String cipher(final String X, byte[] twk, final boolean encrypt) {
         final int n = X.length();
         final int u = n / 2, v = n - u;
 
@@ -25,8 +25,7 @@ public class FF1
         final int p = 16;
         final int r = ((d + 15) / 16) * 16;
 
-        BigInteger c, y;
-        String A, B, C, Y;
+        String A, B, Y;
         byte[] PQ, R;
         int q;
 
@@ -77,20 +76,22 @@ public class FF1
         for (int i = 0; i < 10; i++) {
             final int m = (((i + (encrypt ? 1 : 0)) % 2) == 1) ? u : v;
 
+            BigInteger c, y;
             byte[] numb;
-            String tmp;
 
-            PQ[p + q - b - 1] = (byte)(encrypt ? i : (9 - i));
+            PQ[PQ.length - b - 1] = (byte)(encrypt ? i : (9 - i));
 
             c = new BigInteger(B, ctx.radix);
             numb = c.toByteArray();
             if (b <= numb.length) {
-                System.arraycopy(numb, 0, PQ, p + q - b, b);
+                System.arraycopy(numb, 0, PQ, PQ.length - b, b);
             } else {
                 for (int j = 0; j < b - numb.length; j++) {
-                    PQ[p + q - b + j] = 0;
+                    PQ[PQ.length - b + j] = 0;
                 }
-                System.arraycopy(numb, 0, PQ, p + q - numb.length, numb.length);
+                System.arraycopy(numb, 0,
+                                 PQ, PQ.length - numb.length,
+                                 numb.length);
             }
 
             ctx.prf(R, 0, PQ, 0);
@@ -120,12 +121,9 @@ public class FF1
             }
 
             c = c.mod(BigInteger.valueOf(ctx.radix).pow(m));
-            C = FFX.str(m, ctx.radix, c);
 
-            tmp = A;
             A = B;
-            B = C;
-            C = tmp;
+            B = FFX.str(m, ctx.radix, c);
         }
 
         if (encrypt) {
