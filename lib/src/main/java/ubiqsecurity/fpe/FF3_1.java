@@ -1,11 +1,24 @@
-package ubiqfpe;
+package ubiqsecurity.fpe;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
+/**
+ * FF3-1 algorithm for format-preserving encryption
+ */
 public class FF3_1
 {
     private FFX ctx;
 
+    /**
+     * Constructs a new context object for the FF3-1 algorithm.
+     *
+     * @param key     a byte array containing the key
+     * @param twk     a byte array containing the "tweak" or iv. this value
+     *                may not be null, and the number of bytes must be 7
+     * @param radix   the radix of the alphabet used for the plain and cipher
+     *                text inputs/outputs
+     */
     public FF3_1(final byte[] key, final byte[] twk, final int radix) {
         ctx = new FFX(FFX.rev(key), twk,
                       (long)(192.0 / (Math.log(radix) / Math.log(2))),
@@ -62,9 +75,7 @@ public class FF3_1
             if (12 <= numb.length) {
                 System.arraycopy(numb, 0, P, 4, 12);
             } else {
-                for (int j = 0; j < 12 - numb.length; j++) {
-                    P[4 + j] = 0;
-                }
+                Arrays.fill(P, 4, P.length - numb.length, (byte)0);
                 System.arraycopy(
                     numb, 0, P, P.length - numb.length, numb.length);
             }
@@ -96,18 +107,60 @@ public class FF3_1
         return Y;
     }
 
+    /**
+     * Encrypt a string, returning a cipher text using the same alphabet.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   the plain text to be encrypted
+     * @param twk the tweak used to perturb the encryption
+     *
+     * @return    the encryption of the plain text, the cipher text
+     */
     public String encrypt(String X, byte[] twk) {
         return this.cipher(X, twk, true);
     }
 
+    /**
+     * Encrypt a string, returning a cipher text using the same alphabet.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   The plain text to be encrypted
+     *
+     * @return    the encryption of the plain text, the cipher text
+     */
     public String encrypt(String X) {
         return this.encrypt(X, null);
     }
 
+    /**
+     * Decrypt a string, returning the plain text.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   the cipher text to be decrypted
+     * @param twk the tweak used to perturb the encryption
+     *
+     * @return    the decryption of the cipher text, the plain text
+     */
     public String decrypt(String X, byte[] twk) {
         return this.cipher(X, twk, false);
     }
 
+    /**
+     * Decrypt a string, returning the plain text.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   the cipher text to be decrypted
+     *
+     * @return    the decryption of the cipher text, the plain text
+     */
     public String decrypt(String X) {
         return this.decrypt(X, null);
     }

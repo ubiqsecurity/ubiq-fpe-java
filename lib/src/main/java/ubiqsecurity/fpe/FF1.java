@@ -1,13 +1,28 @@
-package ubiqfpe;
+package ubiqsecurity.fpe;
 
-import java.lang.Math;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+/**
+ * FF1 algorithm for format-preserving encryption
+ */
 public class FF1
 {
     private FFX ctx;
 
+    /**
+     * Constructs a new context object for the FF1 algorithm.
+     *
+     * @param key     a byte array containing the key
+     * @param twk     a byte array containing the "tweak" or iv. this value
+     *                may not be null, and the number of bytes must be between
+     *                the minimum and maximum allowed sizes
+     * @param twkmin  the minimum number of bytes allowable for a tweak
+     * @param twkmax  the maximum number of bytes allowable for a tweak or
+     *                0 to indicate that there is no maximum
+     * @param radix   the radix of the alphabet used for the plain and cipher
+     *                text inputs/outputs
+     */
     public FF1(final byte[] key, final byte[] twk,
                final long twkmin, final long twkmax,
                final int radix) {
@@ -86,9 +101,9 @@ public class FF1
             if (b <= numb.length) {
                 System.arraycopy(numb, 0, PQ, PQ.length - b, b);
             } else {
-                for (int j = 0; j < b - numb.length; j++) {
-                    PQ[PQ.length - b + j] = 0;
-                }
+                Arrays.fill(PQ, PQ.length - b,
+                            PQ.length - numb.length,
+                            (byte)0);
                 System.arraycopy(numb, 0,
                                  PQ, PQ.length - numb.length,
                                  numb.length);
@@ -135,18 +150,60 @@ public class FF1
         return Y;
     }
 
+    /**
+     * Encrypt a string, returning a cipher text using the same alphabet.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF1 object.
+     *
+     * @param X   the plain text to be encrypted
+     * @param twk the tweak used to perturb the encryption
+     *
+     * @return    the encryption of the plain text, the cipher text
+     */
     public String encrypt(String X, byte[] twk) {
         return this.cipher(X, twk, true);
     }
 
+    /**
+     * Encrypt a string, returning a cipher text using the same alphabet.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF1 object.
+     *
+     * @param X   The plain text to be encrypted
+     *
+     * @return    the encryption of the plain text, the cipher text
+     */
     public String encrypt(String X) {
         return this.encrypt(X, null);
     }
 
+    /**
+     * Decrypt a string, returning the plain text.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF1 object.
+     *
+     * @param X   the cipher text to be decrypted
+     * @param twk the tweak used to perturb the encryption
+     *
+     * @return    the decryption of the cipher text, the plain text
+     */
     public String decrypt(String X, byte[] twk) {
         return this.cipher(X, twk, false);
     }
 
+    /**
+     * Decrypt a string, returning the plain text.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF1 object.
+     *
+     * @param X   the cipher text to be decrypted
+     *
+     * @return    the decryption of the cipher text, the plain text
+     */
     public String decrypt(String X) {
         return this.decrypt(X, null);
     }

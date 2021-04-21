@@ -1,4 +1,4 @@
-package ubiqfpe;
+package ubiqsecurity.fpe;
 
 import java.math.BigInteger;
 
