@@ -6,10 +6,8 @@ import java.util.Arrays;
 /**
  * FF3-1 algorithm for format-preserving encryption
  */
-public class FF3_1
+public class FF3_1 extends FFX
 {
-    private FFX ctx;
-
     /**
      * Constructs a new context object for the FF3-1 algorithm.
      *
@@ -33,13 +31,13 @@ public class FF3_1
          *
          * note also that the key is reversed for FF3-1
          */
-        ctx = new FFX(FFX.rev(key), twk,
-                      (long)(192.0 / (Math.log(radix) / Math.log(2))),
-                      7, 7,
-                      radix);
+        super(FFX.rev(key), twk,
+              (long)(192.0 / (Math.log(radix) / Math.log(2))),
+              7, 7,
+              radix);
     }
 
-    private String cipher(final String X, byte[] twk, final boolean encrypt) {
+    protected String cipher(final String X, byte[] twk, final boolean encrypt) {
         /* Step 1 */
         final int n = X.length();
         final int v = n / 2, u = n - v;
@@ -50,14 +48,14 @@ public class FF3_1
 
         /* use the default tweak if none is given */
         if (twk == null) {
-            twk = ctx.twk;
+            twk = this.twk;
         }
 
         /* check text and tweak lengths */
-        if (n < ctx.txtmin || n > ctx.txtmax) {
+        if (n < this.txtmin || n > this.txtmax) {
             throw new IllegalArgumentException("illegal input length");
-        } else if (twk.length < ctx.twkmin ||
-                   (ctx.twkmax > 0 && twk.length > ctx.twkmax)) {
+        } else if (twk.length < this.twkmin ||
+                   (this.twkmax > 0 && twk.length > this.twkmax)) {
             throw new IllegalArgumentException("illegal tweak length");
         }
 
@@ -96,7 +94,7 @@ public class FF3_1
              * integer. then, export that integer as an array.
              * store the array into the latter part of P
              */
-            c = new BigInteger(FFX.rev(B), ctx.radix);
+            c = new BigInteger(FFX.rev(B), this.radix);
             numb = c.toByteArray();
             if (12 <= numb.length) {
                 System.arraycopy(numb, 0, P, 4, 12);
@@ -108,7 +106,7 @@ public class FF3_1
             }
 
             /* Step 4iv */
-            P = FFX.rev(ctx.ciph(FFX.rev(P)));
+            P = FFX.rev(this.ciph(FFX.rev(P)));
 
             /*
              * Step 4v
@@ -118,80 +116,22 @@ public class FF3_1
             y = new BigInteger(P);
             y = y.mod(BigInteger.ONE.shiftLeft(16 * 8));
 
-            c = new BigInteger(FFX.rev(A), ctx.radix);
+            c = new BigInteger(FFX.rev(A), this.radix);
             if (encrypt) {
                 c = c.add(y);
             } else {
                 c = c.subtract(y);
             }
 
-            c = c.mod(BigInteger.valueOf(ctx.radix).pow(m));
+            c = c.mod(BigInteger.valueOf(this.radix).pow(m));
 
             /* Step 4vii */
             A = B;
             /* Step 4vi */
-            B = FFX.rev(FFX.str(m, ctx.radix, c));
+            B = FFX.rev(FFX.str(m, this.radix, c));
         }
 
         /* Step 5 */
         return encrypt ? (A + B) : (B + A);
-    }
-
-    /**
-     * Encrypt a string, returning a cipher text using the same alphabet.
-     *
-     * The key, tweak parameters, and radix were all already set
-     * by the initialization of the FF3_1 object.
-     *
-     * @param X   the plain text to be encrypted
-     * @param twk the tweak used to perturb the encryption
-     *
-     * @return    the encryption of the plain text, the cipher text
-     */
-    public String encrypt(String X, byte[] twk) {
-        return this.cipher(X, twk, true);
-    }
-
-    /**
-     * Encrypt a string, returning a cipher text using the same alphabet.
-     *
-     * The key, tweak parameters, and radix were all already set
-     * by the initialization of the FF3_1 object.
-     *
-     * @param X   The plain text to be encrypted
-     *
-     * @return    the encryption of the plain text, the cipher text
-     */
-    public String encrypt(String X) {
-        return this.encrypt(X, null);
-    }
-
-    /**
-     * Decrypt a string, returning the plain text.
-     *
-     * The key, tweak parameters, and radix were all already set
-     * by the initialization of the FF3_1 object.
-     *
-     * @param X   the cipher text to be decrypted
-     * @param twk the tweak used to perturb the encryption
-     *
-     * @return    the decryption of the cipher text, the plain text
-     */
-    public String decrypt(String X, byte[] twk) {
-        return this.cipher(X, twk, false);
-    }
-
-    /**
-     * Decrypt a string, returning the plain text.
-     *
-     * The key, tweak parameters, and radix were all already set
-     * by the initialization of the FF3_1 object.
-     *
-     * @param X   the cipher text to be decrypted
-     *
-     * @return    the decryption of the cipher text, the plain text
-     */
-    public String decrypt(String X) {
-        return this.decrypt(X, null);
     }
 }

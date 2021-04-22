@@ -10,18 +10,18 @@ import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
-class FFX
+abstract class FFX
 {
-    public CBCBlockCipher cipher;
-    public int radix;
-    public long txtmin, txtmax;
-    public long twkmin, twkmax;
-    public byte[] twk;
+    protected CBCBlockCipher cipher;
+    protected int radix;
+    protected long txtmin, txtmax;
+    protected long twkmin, twkmax;
+    protected byte[] twk;
 
-    public FFX(final byte[] key, final byte[] twk,
-               final long txtmax,
-               final long twkmin, final long twkmax,
-               final int radix) {
+    protected FFX(final byte[] key, final byte[] twk,
+                  final long txtmax,
+                  final long twkmin, final long twkmax,
+                  final int radix) {
         long txtmin;
 
         /* all 3 key sizes of AES are supported */
@@ -86,6 +86,9 @@ class FFX
         this.twk = Arrays.copyOf(twk, twk.length);
     }
 
+    abstract protected String cipher(
+        final String X, byte [] twk, final boolean encrypt);
+
     /*
      * perform an aes-cbc encryption (with an IV of 0) of @src, storing
      * the last block of output into @dst. The number of bytes in @src
@@ -93,8 +96,8 @@ class FFX
      * location but may not overlap, otherwise. @dst must point to a
      * location at least 16 bytes long
      */
-    public void prf(byte[] dst, final int doff,
-                    final byte[] src, final int soff) {
+    protected void prf(byte[] dst, final int doff,
+                       final byte[] src, final int soff) {
         if ((src.length - soff) % this.cipher.getBlockSize() != 0) {
             throw new IllegalArgumentException("invalid source length");
         }
@@ -110,8 +113,8 @@ class FFX
      * 16 bytes long, starting from the respective offsets. @src and @dst
      * may point to the same location or otherwise overlap
      */
-    public void ciph(byte[] dst, final int doff,
-                     final byte[] src, final int soff) {
+    protected void ciph(byte[] dst, final int doff,
+                        final byte[] src, final int soff) {
         if (src.length - soff != this.cipher.getBlockSize()) {
             throw new IllegalArgumentException("invalid source length");
         }
@@ -123,7 +126,7 @@ class FFX
      * a convenience version of the ciph function that returns its
      * output as a separate byte array
      */
-    public byte[] ciph(final byte[] src) {
+    protected byte[] ciph(final byte[] src) {
         byte[] dst = new byte[this.cipher.getBlockSize()];
         ciph(dst, 0, src, 0);
         return dst;
@@ -200,5 +203,63 @@ class FFX
         }
 
         return s;
+    }
+
+    /**
+     * Encrypt a string, returning a cipher text using the same alphabet.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   the plain text to be encrypted
+     * @param twk the tweak used to perturb the encryption
+     *
+     * @return    the encryption of the plain text, the cipher text
+     */
+    public String encrypt(String X, byte[] twk) {
+        return this.cipher(X, twk, true);
+    }
+
+    /**
+     * Encrypt a string, returning a cipher text using the same alphabet.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   The plain text to be encrypted
+     *
+     * @return    the encryption of the plain text, the cipher text
+     */
+    public String encrypt(String X) {
+        return this.encrypt(X, null);
+    }
+
+    /**
+     * Decrypt a string, returning the plain text.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   the cipher text to be decrypted
+     * @param twk the tweak used to perturb the encryption
+     *
+     * @return    the decryption of the cipher text, the plain text
+     */
+    public String decrypt(String X, byte[] twk) {
+        return this.cipher(X, twk, false);
+    }
+
+    /**
+     * Decrypt a string, returning the plain text.
+     *
+     * The key, tweak parameters, and radix were all already set
+     * by the initialization of the FF3_1 object.
+     *
+     * @param X   the cipher text to be decrypted
+     *
+     * @return    the decryption of the cipher text, the plain text
+     */
+    public String decrypt(String X) {
+        return this.decrypt(X, null);
     }
 }
