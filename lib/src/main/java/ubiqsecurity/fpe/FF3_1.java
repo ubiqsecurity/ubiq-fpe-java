@@ -37,6 +37,11 @@ public class FF3_1 extends FFX
               radix);
     }
 
+    /*
+     * The comments below reference the steps of the algorithm described here:
+     *
+     * https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf
+     */
     protected String cipher(final String X, byte[] twk, final boolean encrypt) {
         /* Step 1 */
         final int n = X.length();

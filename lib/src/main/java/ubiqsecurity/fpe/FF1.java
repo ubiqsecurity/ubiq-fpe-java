@@ -27,6 +27,11 @@ public class FF1 extends FFX
         super(key, twk, (long)1 << 32, twkmin, twkmax, radix);
     }
 
+    /*
+     * The comments below reference the steps of the algorithm described here:
+     *
+     * https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf
+     */
     protected String cipher(final String X, byte[] twk, final boolean encrypt) {
         /* Step 1 */
         final int n = X.length();
