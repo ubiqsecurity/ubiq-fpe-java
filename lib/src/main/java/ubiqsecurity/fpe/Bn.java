@@ -67,7 +67,7 @@ import java.math.BigInteger;
                  */
                 pos = alpha.indexOf(str.charAt(len - 1 - i));
                 if (pos < 0) {
-                    throw new IllegalArgumentException("invalid argument, position in alphabet not found");
+                    throw new IllegalArgumentException("invalid argument, input character not found in alphabet");
                 }
                 /*
                  * multiply the digit into the correct position
