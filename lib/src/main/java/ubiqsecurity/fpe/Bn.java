@@ -4,31 +4,35 @@ import java.io.IOException ;
 import java.math.BigInteger;
  
 
-public class Bn {
+/**
+ * Algorithms to convert a numerical value in a given alphabet to a number
+ */
+ public class Bn {
 
-    /*
-    * Convert a numerical value in a given alphabet to a number
-    *
-    * An alphabet consists of single-byte symbols in which each
-    * symbol represents the numerical value associated with its
-    * index/position in the alphabet. for example, consider the
-    * alphabet:
-    *   !@#$%^&*()
-    * In this alphabet ! occupies index 0 and is therefore
-    * assigned that value. @ = 1, # = 2, etc. Furthermore, the
-    * alphabet contains 10 characters, so that becomes the radix
-    * of the input. Using the alphabet above, an input of @$#
-    * translates to a value of 132 (one hundred thirty-two,
-    * decimal).
-    *
-    * If the alphabet above were instead:
-    *   !@#$%^&*
-    * The radix would be 8 and an input of @$# translates to a
-    * value of 90 (ninety, decimal).
-    *
-    * The function returns the numerical value of the str pattern 
-    * position found in the alphabet
-    */    
+    /**
+     * Convert a numerical value in a given alphabet to a number.
+     *
+     * An alphabet consists of single-byte symbols in which each
+     * symbol represents the numerical value associated with its
+     * index/position in the alphabet. for example, consider the
+     * alphabet: !@#$%^-*()
+     * In this alphabet ! occupies index 0 and is therefore
+     * assigned that value. @ = 1, # = 2, etc. Furthermore, the
+     * alphabet contains 10 characters, so that becomes the radix
+     * of the input. Using the alphabet above, an input of @$#
+     * translates to a value of 132 (one hundred thirty-two,
+     * decimal).
+     *
+     * If the alphabet above were instead: !@#$%^-*
+     * The radix would be 8 and an input of @$# translates to a
+     * value of 90 (ninety, decimal).
+     *
+     * @param str the numerical value to be converted
+     * @param alpha alphabet consists of single-byte symbols
+     *
+     * @return the numerical value of the str pattern 
+     * position found in the alphabet
+     */
     public static BigInteger __bigint_set_str(final String str, final String alpha)
         {
             final int len = str.length();
@@ -77,9 +81,18 @@ public class Bn {
         }
     
     
-    /*
-     * Convenience function returns String with inserted char at position
-     */     
+    /**
+     * Inserts a character at a position in a String.
+     *
+     * Convenience function returns String with inserted char 
+     * at an index position.
+     *
+     * @param str the original String
+     * @param ch the character to insert
+     * @param position the index position where to insert the ch
+     *
+     * @return    the new String containing the inserted ch 
+     */    
     public static String insertChar(String str, char ch, int position) {
         StringBuilder sb = new StringBuilder(str);
         sb.insert(position, ch);
@@ -87,10 +100,13 @@ public class Bn {
     }
     
     
-    
-    /*
-     * This function returns the str pattern of the alphabet given the numeric
-     * positional value
+    /**
+     * Gets the str pattern of the alphabet given the numeric value.
+     *
+     * @param alpha alphabet consists of single-byte symbols
+     * @param x the numerical value of the str pattern
+     *
+     * @return the new String of the converted value 
      */    
     public static String __bigint_get_str(final String alpha, final BigInteger x) {
         final int rad = alpha.length();
