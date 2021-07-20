@@ -134,7 +134,7 @@ import java.math.BigInteger;
             
             BigInteger result[] = quotient.divideAndRemainder(BigInteger.valueOf(rad));
             remainder = result[1].intValue();
-            quotient=  BigInteger.valueOf(result[0].intValue());
+            quotient = result[0];
             str = insertChar(str, alpha.charAt(remainder), 0);
         }
         
