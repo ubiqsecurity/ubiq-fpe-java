@@ -110,7 +110,7 @@ import java.math.BigInteger;
      */    
     public static String __bigint_get_str(final String alpha, final BigInteger x) {
         final int rad = alpha.length();
-        BigInteger quotient;
+        BigInteger quotient = x;
         String str = "";
         
         /*
@@ -122,10 +122,6 @@ import java.math.BigInteger;
          * of the division becomes the input to the next
          * iteration
          */
-        final BigInteger len = BigInteger.valueOf(alpha.length());
-        BigInteger positional = BigInteger.valueOf(1);
-        quotient = x.multiply(positional);
-        
         while (quotient.compareTo(BigInteger.valueOf(0)) != 0) {
             int remainder;
             
