@@ -113,6 +113,10 @@ import java.math.BigInteger;
         BigInteger quotient = x;
         String str = "";
         
+        if (rad <= 0) {
+            throw new IllegalArgumentException("invalid argument, alphabet cannot be empty");
+        }
+        
         /*
          * to convert the numerical value, repeatedly
          * divide (storing the resulted quotient and the remainder)

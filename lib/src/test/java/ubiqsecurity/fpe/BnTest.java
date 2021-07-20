@@ -8,10 +8,28 @@ public class BnTest
 {
     @Test
     public void radix_exceptions() {
-        /* exception test */
+        /* exception test for bad input */
         assertThrows(RuntimeException.class, () -> {
             Bn.__bigint_set_str("109", "012345678");
         });
+        
+        assertThrows(RuntimeException.class, () -> {
+            Bn.__bigint_get_str("", BigInteger.valueOf(0));
+        });
+    }
+
+
+    @Test
+    public void radix_edgecase() {
+        /* 0 test */
+        BigInteger r1 = Bn.__bigint_set_str("0", "0123456789");
+        assertEquals(r1, BigInteger.valueOf(0));
+
+        String output = Bn.__bigint_get_str("0123456789ABCDEF", r1);
+        assertEquals(output, "0");
+        
+        output = Bn.__bigint_get_str("0123456789ABCDEF", BigInteger.valueOf(0));
+        assertEquals(output, "0");
     }
 
 
