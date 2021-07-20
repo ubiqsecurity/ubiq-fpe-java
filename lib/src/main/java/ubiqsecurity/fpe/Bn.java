@@ -111,7 +111,6 @@ import java.math.BigInteger;
     public static String __bigint_get_str(final String alpha, final BigInteger x) {
         final int rad = alpha.length();
         BigInteger quotient;
-        int i = 0;
         String str = "";
         
         /*
@@ -133,37 +132,15 @@ import java.math.BigInteger;
             BigInteger result[] = quotient.divideAndRemainder(BigInteger.valueOf(rad));
             remainder = result[1].intValue();
             quotient=  BigInteger.valueOf(result[0].intValue());
-            if (i < len.intValue()) {
-                str = insertChar(str, alpha.charAt(remainder), i);
-            }
-            i++;
+            str = insertChar(str, alpha.charAt(remainder), 0);
         }
         
-        /* handle the case where the initial value was 0 */
-        if (i <= 0) {
-            if (i < len.intValue()) {
-                str = insertChar(str, alpha.charAt(0), i);
-            }
-            i++;
+        if (str.length() == 0) {
+            str = insertChar(str, alpha.charAt(0), 0);
         }
-        
-        if (i <= len.intValue()) {
-            /*
-             * to simplify conversion from a number to a string,
-             * the output digits are stored in reverse order.
-             * reverse the final value so that the output is correct
-             */
-            StringBuilder revStr = new StringBuilder();
-            revStr.append(str);
-            revStr.reverse();
-            str = revStr.toString();
-        }
-          
+                
         return str;
     }
-
-
-    
 
 }
 
