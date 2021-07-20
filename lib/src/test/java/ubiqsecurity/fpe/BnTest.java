@@ -14,6 +14,10 @@ public class BnTest
         });
         
         assertThrows(RuntimeException.class, () -> {
+            Bn.__bigint_set_str("109", "");
+        });
+        
+        assertThrows(RuntimeException.class, () -> {
             Bn.__bigint_get_str("", BigInteger.valueOf(0));
         });
     }

@@ -45,6 +45,9 @@ import java.math.BigInteger;
              * is simply the number of characters in the alphabet.
              */
             final int rad = alpha.length();
+            if (rad <= 0) {
+                throw new IllegalArgumentException("invalid argument, alphabet cannot be empty");
+            }
 
             BigInteger m, a;
             int i;
