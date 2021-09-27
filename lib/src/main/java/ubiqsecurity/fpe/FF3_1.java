@@ -101,6 +101,17 @@ public class FF3_1 extends FFX
              */
             c = new BigInteger(FFX.rev(B), this.radix);
             numb = c.toByteArray();
+            if (numb[0] == 0 && numb.length > 1) {
+                /*
+                 * Per the Java documentation, BigInteger.toByteArray always
+                 * returns enough bytes to contain a sign bit. For the purposes
+                 * of this function all numbers are unsigned; however, when the
+                 * most-significant bit is set in a number, the Java library
+                 * returns an extra most-significant byte that is set to 0.
+                 * That byte must be removed for the cipher to work correctly.
+                 */
+                numb = Arrays.copyOfRange(numb, 1, numb.length);
+            }
             if (12 <= numb.length) {
                 System.arraycopy(numb, 0, P, 4, 12);
             } else {

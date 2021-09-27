@@ -113,4 +113,34 @@ public class FF1Test
              this.twk3,
              PT[1], "xs8a0azh2avyalyzuwd", 36);
     }
+
+    @Test
+    public void base2() {
+        byte[] l_key = {
+            (byte)0xF4, (byte)0xA1, (byte)0x16, (byte)0xD6,
+            (byte)0xEE, (byte)0x40, (byte)0x6A, (byte)0x53,
+            (byte)0xA5, (byte)0x6C, (byte)0xBE, (byte)0x0F,
+            (byte)0x4A, (byte)0xA7, (byte)0xB1, (byte)0x00,
+            (byte)0x1C, (byte)0xDC, (byte)0x0A, (byte)0x55,
+            (byte)0xCA, (byte)0xC9, (byte)0x63, (byte)0xCF,
+            (byte)0x5A, (byte)0xCE, (byte)0x39, (byte)0x04,
+            (byte)0x88, (byte)0xB3, (byte)0x47, (byte)0x7A
+        };
+        byte[] l_tweak = {
+            (byte)0xFD, (byte)0x7F, (byte)0x4B, (byte)0x99,
+            (byte)0x45, (byte)0xA3, (byte)0xC5, (byte)0x35,
+            (byte)0xAD, (byte)0xB4, (byte)0x72, (byte)0x00,
+            (byte)0x27, (byte)0x11, (byte)0x6C, (byte)0xA0,
+            (byte)0xF4, (byte)0x98, (byte)0x7D, (byte)0x7F,
+            (byte)0x3F, (byte)0xDB, (byte)0xA9, (byte)0xBB,
+            (byte)0xC4, (byte)0x0E, (byte)0x75, (byte)0x37,
+            (byte)0x5F, (byte)0xEA, (byte)0xA6, (byte)0x3C
+        };
+        test(l_key,
+             l_tweak,
+             "00000101011011011101001001010011100111100011001",
+             "10110101001110101101110000011000000011111100111",
+             2);
+    }
+
 }
