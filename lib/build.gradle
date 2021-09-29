@@ -1,10 +1,22 @@
 plugins {
     id 'java-library'
+    id "java"
+    id "maven"
+    id "maven-publish"
+    id "biz.aQute.bnd.builder" version "5.0.1"
+    id "signing"
 }
 
 repositories {
     mavenCentral()
+    jcenter()
 }
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+group = GROUP
+version = VERSION_NAME
 
 dependencies {
     testImplementation 'junit:junit:4.13.1'
@@ -17,4 +29,101 @@ test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+   required {
+   (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))}
+     sign configurations.archives
+}
+
+jar {
+    archiveBaseName = POM_ARTIFACT_ID
+    manifest {
+        attributes("Implementation-Title": POM_NAME,
+                   "Implementation-Version": VERSION_NAME,
+                   "Implementation-Vendor": VENDOR_NAME,
+                   "Bundle-SymbolicName": POM_ARTIFACT_ID,
+                   "Export-Package": "com.ubiqsecurity.*")
+
+    }
+    archiveVersion = VERSION_NAME
+
+}
+
+def getRepositoryUsername() {
+    return hasProperty("SONATYPE_NEXUS_USERNAME") ? SONATYPE_NEXUS_USERNAME : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty("SONATYPE_NEXUS_PASSWORD") ? SONATYPE_NEXUS_PASSWORD: ""
+}
+
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+      }
+
+      pom.groupId = GROUP
+      pom.artifactId = POM_ARTIFACT_ID
+      pom.version = VERSION_NAME
+
+      pom.project {
+        name POM_NAME
+        packaging POM_PACKAGING
+        description POM_DESCRIPTION
+        url POM_URL
+
+        scm {
+          connection POM_SCM_CONNECTION
+          developerConnection POM_SCM_DEV_CONNECTION
+          url POM_SCM_URL
+        }
+
+        licenses {
+          license {
+            name POM_LICENCE_NAME
+            url POM_LICENCE_URL
+          }
+        }
+
+        developers {
+          developer {
+            id POM_DEVELOPER_ID
+            name POM_DEVELOPER_NAME
+            email POM_DEVELOPER_EMAIL
+          }
+        }
+
+        organization {
+          name POM_DEVELOPER_NAME
+         url POM_ORGANIZATION_URL
+        }
+
+      }
+    }
+  }
 }
