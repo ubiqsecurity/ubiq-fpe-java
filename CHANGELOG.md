@@ -1,3 +1,4 @@
 # Changelog
 
-## Initial release - 2021-05-10
+## 0.1.0 - 2021-09-29
+*  Initial release
