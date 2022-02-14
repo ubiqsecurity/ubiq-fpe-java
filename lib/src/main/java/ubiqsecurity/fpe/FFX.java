@@ -115,10 +115,6 @@ abstract class FFX
      */
     protected void ciph(byte[] dst, final int doff,
                         final byte[] src, final int soff) {
-        if (src.length - soff != this.cipher.getBlockSize()) {
-            throw new IllegalArgumentException("invalid source length");
-        }
-
         this.prf(dst, doff, src, soff);
     }
 
