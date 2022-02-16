@@ -98,11 +98,13 @@ abstract class FFX
      */
     protected void prf(byte[] dst, final int doff,
                        final byte[] src, final int soff) {
-        if ((src.length - soff) % this.cipher.getBlockSize() != 0) {
+        final int blksz = this.cipher.getBlockSize();
+
+        if ((src.length - soff) % blksz != 0) {
             throw new IllegalArgumentException("invalid source length");
         }
 
-        for (int i = 0; i < src.length; i += dst.length) {
+        for (int i = 0; i < src.length - soff; i += blksz) {
             this.cipher.processBlock(src, soff + i, dst, doff);
         }
         this.cipher.reset();

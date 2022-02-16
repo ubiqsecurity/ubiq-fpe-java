@@ -143,4 +143,61 @@ public class FF1Test
              2);
     }
 
+    @Test
+    public void base2_a() {
+        byte[] l_key = {
+            (byte)0xF4, (byte)0xA1, (byte)0x16, (byte)0xD6,
+            (byte)0xEE, (byte)0x40, (byte)0x6A, (byte)0x53,
+            (byte)0xA5, (byte)0x6C, (byte)0xBE, (byte)0x0F,
+            (byte)0x4A, (byte)0xA7, (byte)0xB1, (byte)0x00,
+            (byte)0x1C, (byte)0xDC, (byte)0x0A, (byte)0x55,
+            (byte)0xCA, (byte)0xC9, (byte)0x63, (byte)0xCF,
+            (byte)0x5A, (byte)0xCE, (byte)0x39, (byte)0x04,
+            (byte)0x88, (byte)0xB3, (byte)0x47, (byte)0x7A
+        };
+        byte[] l_tweak = {
+            (byte)0xFD, (byte)0x7F, (byte)0x4B, (byte)0x99,
+            (byte)0x45, (byte)0xA3, (byte)0xC5, (byte)0x35,
+            (byte)0xAD, (byte)0xB4, (byte)0x72, (byte)0x00,
+            (byte)0x27, (byte)0x11, (byte)0x6C, (byte)0xA0,
+            (byte)0xF4, (byte)0x98, (byte)0x7D, (byte)0x7F,
+            (byte)0x3F, (byte)0xDB, (byte)0xA9, (byte)0xBB,
+            (byte)0xC4, (byte)0x0E, (byte)0x75, (byte)0x37,
+            (byte)0x5F, (byte)0xEA, (byte)0xA6, (byte)0x3C
+        };
+        test(l_key,
+             l_tweak,
+             "000010101100011111010000111001100001011010011110100100110010010000000101000011000000001111110101111100111001001001100100100110101111110000011101010111001111010000010010111110101100001001100011",
+             "111110001101110010010110001010100001101011001010011010111001001101101000011110000110110000001101011110101100001101000011101110110101001111100001011010010000010111001110010011001100001111100101",
+             2);
+    }
+
+    @Test
+    public void base2_b() {
+        byte[] l_key = {
+            (byte)0xF4, (byte)0xA1, (byte)0x16, (byte)0xD6,
+            (byte)0xEE, (byte)0x40, (byte)0x6A, (byte)0x53,
+            (byte)0xA5, (byte)0x6C, (byte)0xBE, (byte)0x0F,
+            (byte)0x4A, (byte)0xA7, (byte)0xB1, (byte)0x00,
+            (byte)0x1C, (byte)0xDC, (byte)0x0A, (byte)0x55,
+            (byte)0xCA, (byte)0xC9, (byte)0x63, (byte)0xCF,
+            (byte)0x5A, (byte)0xCE, (byte)0x39, (byte)0x04,
+            (byte)0x88, (byte)0xB3, (byte)0x47, (byte)0x7A
+        };
+        byte[] l_tweak = {
+            (byte)0xFD, (byte)0x7F, (byte)0x4B, (byte)0x99,
+            (byte)0x45, (byte)0xA3, (byte)0xC5, (byte)0x35,
+            (byte)0xAD, (byte)0xB4, (byte)0x72, (byte)0x00,
+            (byte)0x27, (byte)0x11, (byte)0x6C, (byte)0xA0,
+            (byte)0xF4, (byte)0x98, (byte)0x7D, (byte)0x7F,
+            (byte)0x3F, (byte)0xDB, (byte)0xA9, (byte)0xBB,
+            (byte)0xC4, (byte)0x0E, (byte)0x75, (byte)0x37,
+            (byte)0x5F, (byte)0xEA, (byte)0xA6, (byte)0x3C
+        };
+        test(l_key,
+             l_tweak,
+             "00000111011010010101111110011110001011111000110100000101001010001100001101111000010000101011100100010111011101001010010100101010100011010101010000101111111001111100110100001100011001011010010000110",
+             "00110011001000111100010111110001000110110110010010101101001011101001101010010001111001010100100001110101010101101110110010100110101110111011111010110010101110000001101000101010100011010100111011000",
+             2);
+    }
 }
