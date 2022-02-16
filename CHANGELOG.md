@@ -1,5 +1,8 @@
 # Changelog
 
+## 2022-02-14
+* Fixed incorrect validation check
+
 ## 0.1.2 - 2021-09-29
 * Added code to publish to sonatype / maven
 
