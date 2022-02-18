@@ -97,14 +97,20 @@ abstract class FFX
      * location at least 16 bytes long
      */
     protected void prf(byte[] dst, final int doff,
-                       final byte[] src, final int soff) {
+                       final byte[] src, final int soff, final int len) {
         final int blksz = this.cipher.getBlockSize();
 
         if ((src.length - soff) % blksz != 0) {
             throw new IllegalArgumentException("invalid source length");
         }
 
-        for (int i = 0; i < src.length - soff; i += blksz) {
+        // Some time, we want to run through process block for the entire src
+        // sometimes just one block of the src, regardless of the length.
+        // In cases where only one block needs to be processed, len would be
+        // block size and will terminate the look.  In othercases, len will
+        // be the size of the src but len - soff will terminate that.  however
+        // cannot easily combine both checks into a single math equation.
+        for (int i = 0; i < len && i < src.length - soff; i += blksz) {
             this.cipher.processBlock(src, soff + i, dst, doff);
         }
         this.cipher.reset();
@@ -117,7 +123,7 @@ abstract class FFX
      */
     protected void ciph(byte[] dst, final int doff,
                         final byte[] src, final int soff) {
-        this.prf(dst, doff, src, soff);
+        this.prf(dst, doff, src, soff, 16);
     }
 
     /*
