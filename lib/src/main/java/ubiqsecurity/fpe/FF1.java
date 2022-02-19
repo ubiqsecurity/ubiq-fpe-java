@@ -143,7 +143,7 @@ public class FF1 extends FFX
             }
 
             /* Step 6ii */
-            this.prf(R, 0, PQ, 0);
+            this.prf(R, 0, PQ, 0, PQ.length);
 
             /*
              * Step 6iii
