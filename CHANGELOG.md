@@ -1,6 +1,6 @@
 # Changelog
 
-## 
+## 0.1.3 2022-03-03 
 * Fix cipher algorithm issue and added additional unit tests
 
 ## 2022-02-14
