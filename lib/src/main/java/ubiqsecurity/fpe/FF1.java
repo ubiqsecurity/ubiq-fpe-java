@@ -24,7 +24,13 @@ public class FF1 extends FFX
     public FF1(final byte[] key, final byte[] twk,
                final long twkmin, final long twkmax,
                final int radix) {
-        super(key, twk, (long)1 << 32, twkmin, twkmax, radix);
+        super(key, twk, (long)1 << 32, twkmin, twkmax, radix, FFX.DEFAULT_ALPHABET);
+    }
+
+    public FF1(final byte[] key, final byte[] twk,
+      final long twkmin, final long twkmax,
+      final int radix, final String alpha) {
+      super(key, twk, (long)1 << 32, twkmin, twkmax, radix, alpha);
     }
 
     /*
@@ -80,7 +86,6 @@ public class FF1 extends FFX
             B = X.substring(0, u);
             A = X.substring(u);
         }
-
         /* Step 5 */
         PQ[0]  = 1;
         PQ[1]  = 2;
@@ -104,7 +109,7 @@ public class FF1 extends FFX
         /* remainder of Q already initialized to 0 */
 
         for (int i = 0; i < 10; i++) {
-            /* Step 6v */
+          /* Step 6v */
             final int m = (((i + (encrypt ? 1 : 0)) % 2) == 1) ? u : v;
 
             BigInteger c, y;
@@ -117,7 +122,7 @@ public class FF1 extends FFX
              * convert the numeral string B to an integer and
              * export that integer as a byte array into Q
              */
-            c = new BigInteger(B, this.radix);
+            c = FFX.number(B, this.radix, this.alpha); //new BigInteger(B, this.radix);
             numb = c.toByteArray();
             if (numb[0] == 0 && numb.length > 1) {
                 /*
@@ -172,7 +177,7 @@ public class FF1 extends FFX
             y = new BigInteger(Arrays.copyOf(R, d));
             y = y.mod(BigInteger.ONE.shiftLeft(8 * d));
 
-            c = new BigInteger(A, this.radix);
+            c = FFX.number(A, this.radix, this.alpha); //new BigInteger(A, this.radix);
             if (encrypt) {
                 c = c.add(y);
             } else {
@@ -184,7 +189,7 @@ public class FF1 extends FFX
             /* Step 6viii */
             A = B;
             /* Step 6vii, 6ix */
-            B = FFX.str(m, this.radix, c);
+            B = FFX.str(m, this.radix, this.alpha, c);
         }
 
         /* Step 7 */

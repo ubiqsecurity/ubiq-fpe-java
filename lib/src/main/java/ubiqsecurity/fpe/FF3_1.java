@@ -34,8 +34,29 @@ public class FF3_1 extends FFX
         super(FFX.rev(key), twk,
               (long)(192.0 / (Math.log(radix) / Math.log(2))),
               7, 7,
-              radix);
+              radix, FFX.DEFAULT_ALPHABET);
     }
+
+    public FF3_1(final byte[] key, final byte[] twk, final int radix, final String alpha) {
+      /*
+       * maxlen for ff3-1:
+       * = 2 * log_radix(2**96)
+       * = 2 * log_radix(2**48 * 2**48)
+       * = 2 * (log_radix(2**48) + log_radix(2**48))
+       * = 2 * (2 * log_radix(2**48))
+       * = 4 * log_radix(2**48)
+       * = 4 * log2(2**48) / log2(radix)
+       * = 4 * 48 / log2(radix)
+       * = 192 / log2(radix)
+       *
+       * note also that the key is reversed for FF3-1
+       */
+      super(FFX.rev(key), twk,
+            (long)(192.0 / (Math.log(radix) / Math.log(2))),
+            7, 7,
+            radix, alpha);
+  }
+
 
     /*
      * The comments below reference the steps of the algorithm described here:

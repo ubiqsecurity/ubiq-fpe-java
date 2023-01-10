@@ -24,6 +24,9 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15on:1.68'
 }
 
+compileTestJava {
+  options.encoding = 'UTF-8'
+}
 
 test {
     testLogging {
