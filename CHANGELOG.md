@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.4 2023-01-09
+* Change algorithm to support arbitrary radix and charactersets
+
 ## 0.1.3 2022-03-03 
 * Fix cipher algorithm issue and added additional unit tests
 

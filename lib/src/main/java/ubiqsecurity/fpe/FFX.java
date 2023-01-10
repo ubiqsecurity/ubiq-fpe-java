@@ -12,16 +12,20 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 abstract class FFX
 {
+
+    public static final String DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+
     protected CBCBlockCipher cipher;
     protected int radix;
     protected long txtmin, txtmax;
     protected long twkmin, twkmax;
     protected byte[] twk;
+    protected String alpha;
 
     protected FFX(final byte[] key, final byte[] twk,
                   final long txtmax,
                   final long twkmin, final long twkmax,
-                  final int radix) {
+                  final int radix, final String alpha) {
         long txtmin;
 
         /* all 3 key sizes of AES are supported */
@@ -39,7 +43,7 @@ abstract class FFX
          * implementation becomes increasingly difficult and
          * less useful in practice after the limits below.
          */
-        if (radix < 2 || radix > 36) {
+        if (radix < 2 || radix > alpha.length()) {
             throw new IllegalArgumentException("invalid radix");
         }
 
@@ -76,6 +80,7 @@ abstract class FFX
         this.cipher.init(true, new KeyParameter(key));
 
         this.radix = radix;
+        this.alpha = alpha;
 
         this.txtmin = txtmin;
         this.txtmax = txtmax;
@@ -191,23 +196,55 @@ abstract class FFX
      * if the string is shorter that @m, it is zero-padded to the left
      */
     public static String str(final int m, final int r, final BigInteger i) {
-        String s = i.toString(r);
-
-        if (s.length() > m) {
-            throw new RuntimeException("string exceeds desired length");
-        } else if (s.length() < m) {
-            StringBuilder sb = new StringBuilder();
-
-            while (sb.length() < m - s.length()) {
-                sb.append('0');
-            }
-
-            sb.append(s);
-            s = sb.toString();
-        }
-
-        return s;
+      return str(m, r, FFX.DEFAULT_ALPHABET, i);
     }
+
+    public static String str(final int m, final String alpha, final BigInteger i) {
+      // String s = i.toString(r);
+      return str(m, alpha.length(), alpha, i);
+  }
+
+  public static String str(final int m, final int radix, final String alpha, final BigInteger i) {
+    // String s = i.toString(r);
+    StringBuilder sb = new StringBuilder();
+    BigInteger bi_radix = BigInteger.valueOf(radix);
+    BigInteger cvt = i;
+
+    while (cvt.compareTo(BigInteger.ZERO) > 0) {
+        sb.insert(0, alpha.charAt(cvt.mod(bi_radix).intValue()));
+        cvt = cvt.divide(bi_radix);
+    }
+    if (sb.length() > m) 
+    {
+      throw new RuntimeException(String.format("Unable to convert biginteger into %d characters",m));
+    }
+    while (sb.length() < m)
+    {
+        sb.insert(0, alpha.charAt(0));
+    }
+    return sb.toString();
+  }
+
+  public static BigInteger number(final String num, final int radix) {
+    return number(num, radix, FFX.DEFAULT_ALPHABET);
+  }
+
+  public static BigInteger number(final String num, final String alpha) {
+    return number(num, alpha.length(), alpha);
+  }
+
+  public static BigInteger number(String num, int radix, String alpha) {
+    BigInteger ret = BigInteger.valueOf(0);
+    int idx = num.length() - 1;
+    BigInteger digit = BigInteger.valueOf(1);
+    BigInteger bi_radix = BigInteger.valueOf(radix);
+    while (idx >= 0) {
+      ret = ret.add(digit.multiply(BigInteger.valueOf(alpha.indexOf(num.charAt(idx)))));
+      idx--;
+      digit = digit.multiply(bi_radix);
+    }
+    return ret;
+  }
 
     /**
      * Encrypt a string, returning a cipher text using the same alphabet.
