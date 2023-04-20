@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.0 2023-04-20
+* Updated bouncy castle version and update to version numbers
+
 ## 0.1.4 2023-01-09
 * Change algorithm to support arbitrary radix and charactersets
 
