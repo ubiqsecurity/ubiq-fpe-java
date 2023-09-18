@@ -1,5 +1,5 @@
 image:
-    name: debian:stable
+    name: debian:bullseye
 
 variables:
     DOCKER_HOST: tcp://docker:2375
