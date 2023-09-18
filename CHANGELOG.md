@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.0 2023-09-05
+* Change to compile for Java 1.8
+
 ## 2.0.0 2023-04-20
 * Updated bouncy castle version and update to version numbers
 
