@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.1 2023-10-16
+* Bouncy Castle 1.76 JDK18ON upgrade
+
 ## 2.1.0 2023-09-05
 * Change to compile for Java 1.8
 
