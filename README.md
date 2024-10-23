@@ -1,3 +1,5 @@
+The Ubiq Structured (Format Preserving Encryption) Library has been merged into the core [ubiq-java](https://gitlab.com/ubiqsecurity/ubiq-java) to improve supportability and maintainability. This package has been deprecated and is no longer supported.
+
 # Format Preserving Encryption in Java
 
 An implementation of the NIST-approved FF1 and FF3-1 algorithms in Java.
